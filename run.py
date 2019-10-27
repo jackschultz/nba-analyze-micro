@@ -5,15 +5,19 @@ import datetime
 import requests
 
 local_optimize_url = 'http://127.0.0.1:5000/optimize'
-date = '2019-01-11'
-site = 'fd'
+date = '2019-10-25'
+date = '2019-01-07'
 
+site = 'fd'
+site_id = 2 # that's the id in the db.
+
+from db.finders import get_contests_on_date_for_site
 
 actuals_points = []
 
 
-def ping_optimizer(date, site='fd', excludes=[]):
-    response = requests.get(local_optimize_url, data={'date': date, 'site': site, 'exclude': excludes})
+def ping_optimizer(date, site='fd', version='0.1-avg-5', excludes=[]):
+    response = requests.get(local_optimize_url, data={'date': date, 'site': site, 'exclude': excludes, 'version': version})
     resj = response.json()
     actual_points = resj['actuals']['points']
     print(f"Projected Points: {resj['projections']['points']}")
@@ -22,6 +26,8 @@ def ping_optimizer(date, site='fd', excludes=[]):
 
     players = resj['players']
     player_ids = [p['pid'] for p in players]
+    #for player in players:
+    #   print(player['name'])
     return player_ids
 
 '''
@@ -45,6 +51,7 @@ for i in range(1,2):
         total_excludes.append(pid)
         ping_optimizer(date, excludes=excludes)
 
+
 print(total_excludes)
 print(f'Removing all of the top top players. Round two.')
 for i in range(1,2):
@@ -62,4 +69,10 @@ for i in range(1,2):
         total_excludes.append(pid)
         ping_optimizer(date, excludes=total_excludes)
 
+
 print(sorted(actuals_points))
+
+
+#contests = get_contests_on_date_for_site(date, site_id)
+#print(contests)
+
