@@ -10,4 +10,3 @@ from psycopg2.pool import ThreadedConnectionPool
 min_conns = 1
 max_conns = 15
 tcp = ThreadedConnectionPool(min_conns, max_conns, url)
-

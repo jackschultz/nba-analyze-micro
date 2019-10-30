@@ -6,7 +6,7 @@ import requests
 
 local_optimize_url = 'http://127.0.0.1:5000/optimize'
 date = '2019-10-25'
-date = '2019-01-07'
+date = '2019-01-20'
 
 site = 'fd'
 site_id = 2 # that's the id in the db.
@@ -18,6 +18,9 @@ actuals_points = []
 
 def ping_optimizer(date, site='fd', version='0.1-avg-5', excludes=[]):
     response = requests.get(local_optimize_url, data={'date': date, 'site': site, 'exclude': excludes, 'version': version})
+    print(response.url)
+    print(response.request.url)
+    print(response.request.body)
     resj = response.json()
     actual_points = resj['actuals']['points']
     print(f"Projected Points: {resj['projections']['points']}")
