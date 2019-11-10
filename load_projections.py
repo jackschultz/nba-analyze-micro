@@ -1,9 +1,12 @@
 import calendar
 import datetime
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
 
-from concurrent.futures import ThreadPoolExecutor
+import asyncio
 
-from db.db import tcp
+from db.db import actor
 
 versions = {}
 versions['0.1-avg-01']  = ['set_self_projections_avg', 1]
@@ -34,6 +37,14 @@ versions['0.1-avg-actual-05'] = ['set_self_projections_avg_score', 5]
 versions['0.1-avg-actual-08'] = ['set_self_projections_avg_score', 8]
 
 
+versions['0.1-avg-fte-min-01'] = ['set_self_projections_avg_w_fte_minutes', 1]
+versions['0.1-avg-fte-min-02'] = ['set_self_projections_avg_w_fte_minutes', 2]
+versions['0.1-avg-fte-min-03'] = ['set_self_projections_avg_w_fte_minutes', 3]
+versions['0.1-avg-fte-min-05'] = ['set_self_projections_avg_w_fte_minutes', 5]
+
+versions['0.1-avg-dfn-min-03'] = ['set_self_projections_avg_w_dfn_minutes', 3]
+versions['0.1-avg-dfn-min-05'] = ['set_self_projections_avg_w_dfn_minutes', 5]
+
 def iso_dates_in_month(year, month):
     '''
     Yields date in isoformat in a specific year and month
@@ -54,44 +65,51 @@ def loop_months_for_season():
             yield (year, month)
 
 
-def load_projections_version_on_date(date, sql_fn, limit):
+async def load_projections_version_on_date(date, sql_fn, limit):
     '''
     Here we're loading or updating the projections from the function specified above that's
     written in the db. Much quicker than using python itself to do the calculations.
     '''
-    print(f'Setting self projections for {date} with limit {limit}')
-    conn = tcp.getconn()
-    cursor = conn.cursor()
-
+    logger.debug(f'Setting self projections for {date} with function {sql_fn} with limit of {limit}')
     if limit:
-        cursor.callproc(sql_fn, (date,limit))
+        fetched_all = await actor.call_custom_proc(sql_fn, (date,limit,))
     else:
-        cursor.callproc(sql_fn, (date))
-    conn.commit()
-    fetched_all = cursor.fetchall()
-    print(f'res for {date}, {limit}: {fetched_all}')
-    tcp.putconn(conn)
+        fetched_all = await actor.call_custom_proc(sql_fn, (date))
+
+    logger.debug(f'Projection responses for {date}, {limit}: {fetched_all}')
 
 
-'''
-for version, _ in versions.items():
-    with ThreadPoolExecutor(max_workers=15) as executor:
-        for year, month in loop_months_for_season():
-            for date in iso_dates_in_month(year, month):
-                sql_fn, limit = versions[version]
-                print(date, sql_fn, limit)
-                executor.submit(load_projections_version_on_date, date, sql_fn, limit)
-'''
+async def load_self_projections_for_date(date, versions=versions):
+    logger.info(f'Loading {len(versions.keys())} self projections for {date}.')
+    for version, _ in versions.items():
+        logger.info(f'Loading {version} for {date}...')
+        sql_fn, limit = versions[version]
+        task = asyncio.create_task(load_projections_version_on_date(date, sql_fn, limit))
+        await task
+        logger.info(f'Loading {version} completed for {date}')
 
+async def main(date, versions):
+    await load_self_projections_for_date(date, versions=versions)
 
-def load_self_projections_for_date(date, versions=versions):
-    with ThreadPoolExecutor(max_workers=15) as executor:
-        for version, _ in versions.items():
-            sql_fn, limit = versions[version]
-            print(date, sql_fn, limit)
-            executor.submit(load_projections_version_on_date, date, sql_fn, limit)
 
 if __name__ == '__main__':
 
-    date = '2019-10-28'
-    load_self_projections_for_date(date)
+
+
+    versions = {}
+    versions['0.1-dfn-min-avg-03'] = ['set_self_projections_dfn_min_avg', 3]
+    versions['0.1-dfn-min-avg-05'] = ['set_self_projections_dfn_min_avg', 5]
+
+    #versions = {}
+    versions['0.1-dfn-min-ceil-03'] = ['set_self_projections_dfn_min_ceil', 3]
+    versions['0.1-dfn-min-ceil-05'] = ['set_self_projections_dfn_min_ceil', 5]
+
+    #versions = {}
+    versions['0.1-dfn-min-floor-03'] = ['set_self_projections_dfn_min_floor', 3]
+    versions['0.1-dfn-min-floor-05'] = ['set_self_projections_dfn_min_floor', 5]
+
+    loop = asyncio.get_event_loop()
+    date = '2019-11-09'
+    loop.run_until_complete(main(date, versions))
+
+    loop.close()

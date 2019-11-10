@@ -17,7 +17,7 @@ query_string = '''
 		AND slp.fdpp36 IS NOT NULL
 		AND slp.minutes > 10
 		AND proj.fdpp36 < 200
-		AND proj.version = '0.1-avg-10'
+		AND proj.version = '0.1-avg-fte-min-03'
         AND proj."source"='self';
 '''
 
