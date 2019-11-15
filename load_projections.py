@@ -97,19 +97,22 @@ if __name__ == '__main__':
 
 
     versions = {}
-    versions['0.1-dfn-min-avg-03'] = ['set_self_projections_dfn_min_avg', 3]
-    versions['0.1-dfn-min-avg-05'] = ['set_self_projections_dfn_min_avg', 5]
+    #versions['0.1-dfn-min-avg-03'] = ['set_self_projections_dfn_min_avg', 3]
+    #versions['0.1-dfn-min-avg-05'] = ['set_self_projections_dfn_min_avg', 5]
+    versions['0.1-dfn-min-avg-08'] = ['set_self_projections_dfn_min_avg', 8]
 
     #versions = {}
-    versions['0.1-dfn-min-ceil-03'] = ['set_self_projections_dfn_min_ceil', 3]
-    versions['0.1-dfn-min-ceil-05'] = ['set_self_projections_dfn_min_ceil', 5]
+    #versions['0.1-dfn-min-ceil-03'] = ['set_self_projections_dfn_min_ceil', 3]
+    #versions['0.1-dfn-min-ceil-05'] = ['set_self_projections_dfn_min_ceil', 5]
+    versions['0.1-dfn-min-ceil-08'] = ['set_self_projections_dfn_min_ceil', 8]
 
     #versions = {}
-    versions['0.1-dfn-min-floor-03'] = ['set_self_projections_dfn_min_floor', 3]
-    versions['0.1-dfn-min-floor-05'] = ['set_self_projections_dfn_min_floor', 5]
+    #versions['0.1-dfn-min-floor-03'] = ['set_self_projections_dfn_min_floor', 3]
+    #versions['0.1-dfn-min-floor-05'] = ['set_self_projections_dfn_min_floor', 5]
+    versions['0.1-dfn-min-floor-05'] = ['set_self_projections_dfn_min_floor', 8]
 
     loop = asyncio.get_event_loop()
-    date = '2019-11-09'
+    date = '2019-11-06'
     loop.run_until_complete(main(date, versions))
 
     loop.close()
