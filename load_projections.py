@@ -112,7 +112,7 @@ if __name__ == '__main__':
     versions['0.1-dfn-min-floor-05'] = ['set_self_projections_dfn_min_floor', 8]
 
     loop = asyncio.get_event_loop()
-    date = '2019-11-06'
+    date = '2019-11-15'
     loop.run_until_complete(main(date, versions))
 
     loop.close()

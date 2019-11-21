@@ -155,8 +155,9 @@ df3 = df2.head(25)
 pd.options.display.float_format = '{:.8f}'.format
 print(coeff_df)
 print(coeff_df.to_dict())
+print(regressor.intercept_)
 
-print('FD Point MEan:', df['fd_act_pp36'].mean())
+print('FD Point Mean:', df['fd_act_pp36'].mean())
 print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))  
 print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
 print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
