@@ -71,7 +71,7 @@ def create_lineups(date, site, version, levels=3, excludes=[], includes=[]):
     return lineups
 
 if __name__ == '__main__':
-    date = '2019-11-20'
+    date = '2019-11-27'
     version = '0.2-lin-reg-dfn-min'
     #version = '0.1-dfn'
     site = 'fd'

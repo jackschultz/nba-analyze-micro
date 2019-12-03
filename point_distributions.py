@@ -86,17 +86,47 @@ WHERE
 
 '''
 
-if __name__ == '__main__':
+q5 = '''
+select avg_diff from (
+SELECT
+	proj.fd_value,
+	proj.fd_points,
+	slp.fd_points,
+	proj.fd_points - slp.fd_points as act_diff,
+	slp.fd_points - fss.aver as avg_diff
+FROM
+	projections proj,
+	stat_line_points slp,
+	fd_sal_stats fss
+WHERE
+	proj.stat_line_id = slp.stat_line_id
+	AND fss.sal = slp.fd_salary
+	AND slp. "date" > '2019-11-11'
+	AND slp."date" < '2019-11-27'
+	AND proj. "version" = '%s'
+	AND slp.fd_salary > 3400
+	AND proj.fd_points > 20
+	AND proj.minutes > 15
+	AND slp.active
+	)x;
 
-    df = pd.read_sql_query(q4, actor.conn)
-    #print(df)
+'''
+
+
+if __name__ == '__main__':
+    version = '0.1-dfn'
+    version = '0.2-sm-ols-dfn-min'
+    #version = '0.2-lin-reg-dfn-min'
+
+
+    df = pd.read_sql_query(q5 % version, actor.conn)
     print(len(df))
     print('stds')
     print(df.std())
     print('avgs')
     print(df.mean())
 
-    ax = df.plot.hist(bins=10, alpha=0.5)
+    ax = df.plot.hist(bins=50, alpha=0.5)
     plt.show()
 
 

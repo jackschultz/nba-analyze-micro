@@ -1,6 +1,9 @@
 import decimal
 from collections import defaultdict
 
+import statsmodels.api as sm
+import pandas as pd
+
 from db.db import actor
 import utils
 
@@ -25,12 +28,36 @@ intercept = decimal.Decimal(-11.15)
 
 q = 'select * from test_proj_view where "date"=%s'
 
+
+def set_sm_ols_projections(date, version='0.2-sm-ols', model_filename='asdf.pkl'):
+    print(f'Setting SM OLS projections {version} for {date}')
+    model = sm.load(model_filename)
+    coeffs = dict(model.params)
+    intercept = decimal.Decimal(coeffs.pop('const'))
+
+    qwer = actor.call_custom_all(q, (date,))
+
+    projs = defaultdict(int)
+    for sl in qwer:
+        slid = sl['stat_line_id']
+        projs[slid] = intercept
+        for key, val in coeffs.items():
+            try:
+                projs[slid] += decimal.Decimal(val) * sl[key]
+            except Exception as e:
+                import pdb;pdb.set_trace()
+                asdf = 5
+
+    source = 'self'
+    for slid, fdpp36 in projs.items():
+        actor.create_or_update_fd_projection(slid, source, bulk={}, fdpp36=fdpp36, version=version)
+
+    pass
+
 def set_lin_reg_projections(date, version):
     print(f'Setting Lin Reg projections {version} for {date}')
     qwer = actor.call_custom_all(q, (date,))
 
-    import decimal
-    from collections import defaultdict
     projs = defaultdict(int)
     for sl in qwer:
         slid = sl['stat_line_id']
@@ -51,7 +78,7 @@ def set_lin_reg_projections(date, version):
 def combine_self_lin_reg_and_minutes(date, version_pp36, version_min, new_version_name):
     """Going through the projections that are 0.2-lin-reg and matching them up
        with projections for the same stat_line and that have minute projections"""
-    print(f'Combining {version_pp36} with {version_min} minutes to {new_version_name}')
+    print(f'{date}: Combining {version_pp36} with {version_min} minutes to {new_version_name}')
     query = 'select * from projections where stat_line_id=%s and version=%s'
     slps = actor.find_stat_line_points_on_date(date)
     for slp in slps:
@@ -67,7 +94,7 @@ def combine_self_lin_reg_and_minutes(date, version_pp36, version_min, new_versio
             actor.create_or_update_fd_projection(slid, 'self', bulk={}, minutes=proj_min['minutes'], fd_points=fd_points, fdpp36=proj_pp36_num, version=new_version_name, fd_value=fd_value)
 
 
-def set_and_combine_for_date(date):
+def set_and_combine_for_date(date, version_pp36):
     set_lin_reg_projections(date, version_pp36)
 
     for version_min in minute_versions:
@@ -75,7 +102,11 @@ def set_and_combine_for_date(date):
         new_version_name = f'{version_pp36}-{minute_site}-min'
         combine_self_lin_reg_and_minutes(date, version_pp36, version_min, new_version_name)
 
-
+def combine_minutes_for_date(date, version_pp36):
+    for version_min in minute_versions:
+        minute_site = version_min.split('-')[1]
+        new_version_name = f'{version_pp36}-{minute_site}-min'
+        combine_self_lin_reg_and_minutes(date, version_pp36, version_min, new_version_name)  
 
 
 minute_versions = ['0.1-dfn', '0.1-fte', '0.1-rg']
@@ -87,9 +118,16 @@ minute_versions = ['0.1-dfn', '0.1-fte', '0.1-rg']
 # `refresh materialized view team_points_windows;`
 #####
 if __name__ == '__main__':
-    version_pp36 = '0.2-lin-reg'
-    dates = ['2019-11-19', '2019-11-18', '2019-11-17', '2019-11-16', '2019-11-15', '2019-11-14','2019-11-13','2019-11-12','2019-11-11','2019-11-10','2019-11-09','2019-11-08']
-    dates = ['2019-11-20']
-    for date in dates:
-        set_and_combine_for_date(date)
+    version_lin_reg = '0.2-lin-reg'
+    version_sm_ols = '0.2-sm-ols'
+    start_date = '2019-11-08'
+    end_date = '2019-11-27'
+    start_date = '2019-12-01'
+    end_date = '2019-12-03'
+    timestamps = pd.date_range(start_date, end_date).tolist()
+    for ts in timestamps:
+        date = str(ts.date())
+        #set_sm_ols_projections(date, model_filename='models/res_ols.pkl')
+        #combine_minutes_for_date(date, version_sm_ols)
+        set_and_combine_for_date(date, version_lin_reg)
 
