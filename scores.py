@@ -6,7 +6,7 @@ over_under_std = 17.637512
 
 
 
-def possible_score(odds, over_under):
+def create_possible_score(odds, over_under):
     pass
     odds_rand = np.random.normal(0, odds_std, 1)
     over_under_rand = np.random.normal(0, over_under_std, 1)
@@ -18,7 +18,7 @@ def possible_score(odds, over_under):
     # total_score / 2 since odds are negative for the team that scores more.
     hts = (total_score / 2.0) - (new_odds / 2.0)
     ats = (total_score / 2.0) + (new_odds / 2.0)
-    return hts, ats
+    return ats[0], hts[0]
 
 if __name__ == '__main__':
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     score_diffs = []
     tot_scores = []
     for i in range(10000):
-        hts, ats = possible_score(-4.5, 220)
+        ats, hts = create_possible_score(-4.5, 220)
         score_diffs.append(hts - ats)
         tot_scores.append(ats + hts)
     a = np.array(score_diffs)

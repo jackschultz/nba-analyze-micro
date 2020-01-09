@@ -19,6 +19,7 @@ projection_points = []
 def ping_optimizer(date, site='fd', version=None, excludes=[], includes=[]):
     response = requests.get(local_optimize_url, data={'date': date, 'site': site, 'exclude': excludes, 'includes': includes, 'version': version})
     resj = response.json()
+    print(resj)
     lineup = defaultdict(list)
     for player in resj['players']:
         pos = player['pos']
@@ -71,7 +72,7 @@ def create_lineups(date, site, version, levels=3, excludes=[], includes=[]):
     return lineups
 
 if __name__ == '__main__':
-    date = '2019-11-27'
+    date = '2019-12-12'
     version = '0.2-lin-reg-dfn-min'
     #version = '0.1-dfn'
     site = 'fd'

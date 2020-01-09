@@ -122,8 +122,8 @@ if __name__ == '__main__':
     version_sm_ols = '0.2-sm-ols'
     start_date = '2019-11-08'
     end_date = '2019-11-27'
-    start_date = '2019-12-01'
-    end_date = '2019-12-03'
+    start_date = '2019-12-15'
+    end_date = '2019-12-15'
     timestamps = pd.date_range(start_date, end_date).tolist()
     for ts in timestamps:
         date = str(ts.date())
