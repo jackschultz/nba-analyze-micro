@@ -102,13 +102,14 @@ WHERE
 	proj.stat_line_id = slp.stat_line_id
 	AND fss.sal = slp.fd_salary
 	AND slp. "date" > '2019-11-11'
-	AND slp."date" < '2019-11-27'
+	AND slp."date" < '2019-12-27'
 	AND proj. "version" = '%s'
-	AND slp.fd_salary > 3400
+	--AND slp.fd_salary < 9000
+	AND slp.fd_salary < 5000
 	AND proj.fd_points > 20
 	AND proj.minutes > 15
 	AND slp.active
-	)x;
+	)x where avg_diff > -30;
 
 '''
 

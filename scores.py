@@ -4,10 +4,7 @@ import numpy as np
 odds_std = 12.843645
 over_under_std = 17.637512
 
-
-
 def create_possible_score(odds, over_under):
-    pass
     odds_rand = np.random.normal(0, odds_std, 1)
     over_under_rand = np.random.normal(0, over_under_std, 1)
     total_score = over_under + over_under_rand # meaning this will be the accepted total score.

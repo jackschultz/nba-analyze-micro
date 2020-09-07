@@ -120,10 +120,8 @@ minute_versions = ['0.1-dfn', '0.1-fte', '0.1-rg']
 if __name__ == '__main__':
     version_lin_reg = '0.2-lin-reg'
     version_sm_ols = '0.2-sm-ols'
-    start_date = '2019-11-08'
-    end_date = '2019-11-27'
-    start_date = '2019-12-15'
-    end_date = '2019-12-15'
+    start_date = '2020-01-10'
+    end_date = '2020-01-10'
     timestamps = pd.date_range(start_date, end_date).tolist()
     for ts in timestamps:
         date = str(ts.date())
